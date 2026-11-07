@@ -38,7 +38,7 @@
 
         .home-hero { display: flex; flex-direction: column; align-items: center; margin-top: 15px; text-align: center; }
         .iris-avatar-container {
-            width: 130px; height: 130px; border-radius: 50%; padding: 4px;
+            width: 120px; height: 120px; border-radius: 50%; padding: 4px;
             background: linear-gradient(45deg, var(--neon-blue), transparent, var(--neon-cyan));
             box-shadow: 0 0 25px var(--accent-glow); margin-bottom: 15px;
         }
@@ -87,7 +87,7 @@
         .chat-header img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--neon-blue); }
 
         .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 13px; line-height: 1.5; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-break: break-word; }
         .message.incoming { background: rgba(25, 30, 48, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); align-self: flex-start; border-bottom-left-radius: 4px; }
         .message.outgoing { background: linear-gradient(135deg, #0072ff, #00f2fe); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
 
@@ -131,15 +131,15 @@
                 <div class="iris-avatar-container">
                     <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="IRIS" class="iris-avatar">
                 </div>
-                <div class="status-badge"><span class="status-dot"></span> IRIS Cloud Server Active</div>
+                <div class="status-badge"><span class="status-dot"></span> Gemini AI Active</div>
                 <h1 class="welcome-title">أهلاً بك، يوسف</h1>
-                <p class="welcome-sub">متصل بالسيرفر الخارجي 24/7</p>
+                <p class="welcome-sub">مساعدتك الذكية المحفوظة محلياً</p>
             </div>
             <div class="quick-grid">
-                <div class="quick-card" onclick="switchView('chatView')"><i class="fa-solid fa-comments"></i><h3>المحادثة الذكية</h3><p>أوامر شات وأتمتة</p></div>
+                <div class="quick-card" onclick="switchView('chatView')"><i class="fa-solid fa-comments"></i><h3>المحادثة الذكية</h3><p>ذكاء اصطناعي حقيقي</p></div>
                 <div class="quick-card" onclick="switchView('tasksView')"><i class="fa-solid fa-list-check"></i><h3>المهام والحجوزات</h3><p>إدارة الحجوزات</p></div>
-                <div class="quick-card" onclick="switchView('newsView')"><i class="fa-solid fa-globe"></i><h3>الأخبار والمباريات</h3><p>متابعة النتائج الحية</p></div>
-                <div class="quick-card" onclick="switchView('profileView')"><i class="fa-solid fa-sliders"></i><h3>الاهتمامات</h3><p>البيانات اليدوية</p></div>
+                <div class="quick-card" onclick="switchView('newsView')"><i class="fa-solid fa-globe"></i><h3>الأخبار والمباريات</h3><p>متابعة النتائج</p></div>
+                <div class="quick-card" onclick="switchView('profileView')"><i class="fa-solid fa-sliders"></i><h3>إعدادات الـ AI</h3><p>إدخال API Key</p></div>
             </div>
         </div>
 
@@ -147,13 +147,11 @@
         <div id="chatView" class="view">
             <div class="chat-header">
                 <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="IRIS">
-                <div><h4 style="font-size:14px;">IRIS Assistant</h4><span style="font-size:11px; color:var(--neon-blue);">متصل بالسيرفر</span></div>
+                <div><h4 style="font-size:14px;">IRIS AI</h4><span style="font-size:11px; color:var(--neon-blue);">متصل بـ Gemini</span></div>
             </div>
-            <div class="chat-body" id="chatBody">
-                <div class="message incoming">أهلاً يا يوسف. أنا متصل الآن بالسيرفر، أي أمر تقوله سيحفظ ويتزامن تلقائيًا!</div>
-            </div>
+            <div class="chat-body" id="chatBody"></div>
             <div class="chat-input-area">
-                <input type="text" id="chatInput" placeholder="اكتب أمرك لـ IRIS..." onkeypress="handleChatKey(event)">
+                <input type="text" id="chatInput" placeholder="اسأل IRIS أي سؤال..." onkeypress="handleChatKey(event)">
                 <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
@@ -178,9 +176,16 @@
             <div class="list-container" id="newsList"></div>
         </div>
 
-        <!-- Profile -->
+        <!-- Settings / Profile -->
         <div id="profileView" class="view">
-            <div class="section-title">الاهتمامات اليدوية</div>
+            <div class="section-title">إعدادات Gemini API Key</div>
+            <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">أدخل مفتاح Gemini API المجاني الخاص بك لتفعيل الذكاء الاصطناعي الحقيقي:</p>
+            <div class="input-box">
+                <input type="password" id="apiKeyInput" placeholder="أدخل مفتاح AI Key...">
+                <button class="add-btn" onclick="saveApiKey()">حفظ</button>
+            </div>
+            
+            <div class="section-title" style="margin-top:25px;">الاهتمامات اليدوية</div>
             <div class="input-box">
                 <input type="text" id="interestInput" placeholder="اكتب اهتمامًا جديدًا...">
                 <button class="add-btn" onclick="addInterest()">إضافة</button>
@@ -194,34 +199,25 @@
             <button class="nav-item" onclick="switchView('chatView', this)"><i class="fa-solid fa-comments"></i><span>الشات</span></button>
             <button class="nav-item" onclick="switchView('tasksView', this)"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
             <button class="nav-item" onclick="switchView('newsView', this)"><i class="fa-solid fa-globe"></i><span>الأخبار</span></button>
-            <button class="nav-item" onclick="switchView('profileView', this)"><i class="fa-solid fa-user-gear"></i><span>البروفايل</span></button>
+            <button class="nav-item" onclick="switchView('profileView', this)"><i class="fa-solid fa-user-gear"></i><span>الإعدادات</span></button>
         </nav>
     </div>
 
     <script>
-        let appData = { tasks: [], news: [], interests: [] };
+        const defaultData = {
+            apiKey: '',
+            tasks: [{ id: 1, text: "متابعة وتنبيه حجز تذاكر الأفلام فور نزولها" }],
+            news: [{ id: 1, text: "متابعة نتائج المباريات والأهداف" }],
+            interests: ["الذكاء الاصطناعي", "التسويق الرقمي", "تطوير الويب"],
+            messages: [
+                { sender: 'incoming', text: "أهلاً يا يوسف! أنا IRIS، مساعدتك الذكية بمحرك Gemini. اسألني عن أي حاجة وسأجيبك فوراً!" }
+            ]
+        };
 
-        async function fetchServerData() {
-            try {
-                const res = await fetch('/api/data');
-                const data = await res.json();
-                appData = data;
-                renderAll();
-            } catch (e) {
-                console.error("Error fetching data", e);
-            }
-        }
+        let appData = JSON.parse(localStorage.getItem('iris_app_data')) || defaultData;
 
-        async function syncWithServer() {
-            try {
-                await fetch('/api/data', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(appData)
-                });
-            } catch (e) {
-                console.error("Error syncing data", e);
-            }
+        function saveToLocalStorage() {
+            localStorage.setItem('iris_app_data', JSON.stringify(appData));
         }
 
         function switchView(viewId, element) {
@@ -235,89 +231,151 @@
         }
 
         function renderAll() {
+            // Render Tasks
             const tList = document.getElementById('tasksList');
             tList.innerHTML = '';
             appData.tasks.forEach((t, idx) => {
                 tList.innerHTML += `<div class="tag-item"><span>📌 ${t.text}</span> <i class="fa-solid fa-xmark" onclick="removeTask(${idx})"></i></div>`;
             });
 
+            // Render News
             const nList = document.getElementById('newsList');
             nList.innerHTML = '';
             appData.news.forEach((n, idx) => {
                 nList.innerHTML += `<div class="tag-item"><span>⚡ ${n.text}</span> <i class="fa-solid fa-xmark" onclick="removeNews(${idx})"></i></div>`;
             });
 
+            // Render Interests
             const iList = document.getElementById('interestsList');
             iList.innerHTML = '';
             appData.interests.forEach((item, idx) => {
                 iList.innerHTML += `<div class="tag-item"><span>🎯 ${item}</span> <i class="fa-solid fa-xmark" onclick="removeInterest(${idx})"></i></div>`;
             });
+
+            // Render API Key input
+            if(appData.apiKey) {
+                document.getElementById('apiKeyInput').value = appData.apiKey;
+            }
+
+            renderChat();
         }
 
-        async function addNewTask() {
+        function renderChat() {
+            const body = document.getElementById('chatBody');
+            body.innerHTML = '';
+            appData.messages.forEach(msg => {
+                body.innerHTML += `<div class="message ${msg.sender}">${msg.text}</div>`;
+            });
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            appData.apiKey = key;
+            saveToLocalStorage();
+            alert('تم حفظ الـ API Key بنجاح!');
+        }
+
+        async function fetchGeminiResponse(userPrompt) {
+            if (!appData.apiKey) {
+                return "من فضلك ادخل Gemini API Key الأول في صفحة الإعدادات عشان أقدر أرد عليك بالذكاء الاصطناعي!";
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${appData.apiKey}`;
+            const systemContext = `أنت IRIS، المساعد الشخصي الذكي الخاص بيوسف. تتحدث باللغة العربية بأسلوب صديق ذكي ومختصر ومباشر.`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: `${systemContext}\n\nUser: ${userPrompt}` }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    return "عذراً، حدثت مشكلة في الاستجابة من الذكاء الاصطناعي.";
+                }
+            } catch (err) {
+                return "تعذر الاتصال بالذكاء الاصطناعي. تأكد من صحة الـ API Key وجودة الاتصال.";
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // حفظ وإظهار رسالة المستخدم
+            appData.messages.push({ sender: 'outgoing', text: text });
+            saveToLocalStorage();
+            renderChat();
+            input.value = '';
+
+            // إظهار رسالة جاري التفكير
+            appData.messages.push({ sender: 'incoming', text: 'جاري التفكير...' });
+            renderChat();
+
+            // الأتمتة المحلية للمهام
+            const lower = text.toLowerCase();
+            if (lower.includes('فيلم') || lower.includes('تذكرة') || lower.includes('حجز')) {
+                appData.tasks.push({ id: Date.now(), text: `حجز تذكرة: ${text}` });
+            } else if (lower.includes('ماتش') || lower.includes('مباراة') || lower.includes('تابع')) {
+                appData.news.push({ id: Date.now(), text: `متابعة: ${text}` });
+            }
+
+            // جلب الرد من Gemini
+            const aiReply = await fetchGeminiResponse(text);
+            
+            // استبدال رسالة التفكير بالرد الحقيقي
+            appData.messages.pop();
+            appData.messages.push({ sender: 'incoming', text: aiReply });
+            saveToLocalStorage();
+            renderAll();
+        }
+
+        function addNewTask() {
             const inp = document.getElementById('taskInput');
             if(inp.value.trim()) {
                 appData.tasks.push({ id: Date.now(), text: inp.value.trim() });
                 inp.value = '';
+                saveToLocalStorage();
                 renderAll();
-                await syncWithServer();
             }
         }
 
-        async function addNewNews() {
+        function addNewNews() {
             const inp = document.getElementById('newsInput');
             if(inp.value.trim()) {
                 appData.news.push({ id: Date.now(), text: inp.value.trim() });
                 inp.value = '';
+                saveToLocalStorage();
                 renderAll();
-                await syncWithServer();
             }
         }
 
-        async function addInterest() {
+        function addInterest() {
             const inp = document.getElementById('interestInput');
             if(inp.value.trim() && !appData.interests.includes(inp.value.trim())) {
                 appData.interests.push(inp.value.trim());
                 inp.value = '';
+                saveToLocalStorage();
                 renderAll();
-                await syncWithServer();
             }
         }
 
-        async function removeTask(idx) { appData.tasks.splice(idx, 1); renderAll(); await syncWithServer(); }
-        async function removeNews(idx) { appData.news.splice(idx, 1); renderAll(); await syncWithServer(); }
-        async function removeInterest(idx) { appData.interests.splice(idx, 1); renderAll(); await syncWithServer(); }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const body = document.getElementById('chatBody');
-            const text = input.value.trim();
-            if (!text) return;
-
-            body.innerHTML += `<div class="message outgoing">${text}</div>`;
-            input.value = '';
-            body.scrollTop = body.scrollHeight;
-
-            try {
-                const res = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: text })
-                });
-                const result = await res.json();
-                appData = result.data;
-                renderAll();
-
-                body.innerHTML += `<div class="message incoming">${result.reply}</div>`;
-                body.scrollTop = body.scrollHeight;
-            } catch (e) {
-                body.innerHTML += `<div class="message incoming">حدث خطأ في الاتصال بالسيرفر.</div>`;
-            }
-        }
+        function removeTask(idx) { appData.tasks.splice(idx, 1); saveToLocalStorage(); renderAll(); }
+        function removeNews(idx) { appData.news.splice(idx, 1); saveToLocalStorage(); renderAll(); }
+        function removeInterest(idx) { appData.interests.splice(idx, 1); saveToLocalStorage(); renderAll(); }
 
         function handleChatKey(e) { if (e.key === 'Enter') sendMessage(); }
 
-        fetchServerData();
+        renderAll();
     </script>
 </body>
 </html>
