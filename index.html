@@ -1,0 +1,323 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IRIS - AI Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #05050a;
+            --card-bg: rgba(18, 20, 32, 0.75);
+            --neon-blue: #00f2fe;
+            --neon-cyan: #4facfe;
+            --accent-glow: rgba(0, 242, 254, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: rgba(0, 242, 254, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+
+        .app-container {
+            width: 100%; max-width: 430px; height: 100vh; max-height: 932px;
+            background: linear-gradient(135deg, #05050a 0%, #0a0f1d 100%);
+            position: relative; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8); border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        @media (min-width: 431px) { .app-container { border-radius: 40px; height: 884px; } }
+
+        .view { flex: 1; display: none; flex-direction: column; overflow-y: auto; padding: 20px; padding-bottom: 90px; animation: fadeIn 0.3s ease; }
+        .view.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        #chatView { padding: 0; padding-bottom: 70px; background: #030508; }
+
+        .home-hero { display: flex; flex-direction: column; align-items: center; margin-top: 15px; text-align: center; }
+        .iris-avatar-container {
+            width: 130px; height: 130px; border-radius: 50%; padding: 4px;
+            background: linear-gradient(45deg, var(--neon-blue), transparent, var(--neon-cyan));
+            box-shadow: 0 0 25px var(--accent-glow); margin-bottom: 15px;
+        }
+        .iris-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #111; }
+
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--border-color); padding: 4px 12px; border-radius: 20px; font-size: 12px; color: var(--neon-blue); margin-bottom: 10px;
+        }
+        .status-dot { width: 8px; height: 8px; background-color: var(--neon-blue); border-radius: 50%; box-shadow: 0 0 8px var(--neon-blue); }
+
+        .welcome-title { font-size: 22px; font-weight: 700; margin-bottom: 5px; }
+        .welcome-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+
+        .quick-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .quick-card {
+            background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 18px;
+            padding: 16px; display: flex; flex-direction: column; gap: 10px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .quick-card:hover { border-color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 242, 254, 0.15); }
+        .quick-card i { font-size: 24px; color: var(--neon-blue); }
+        .quick-card h3 { font-size: 15px; font-weight: 600; }
+        .quick-card p { font-size: 11px; color: var(--text-muted); }
+
+        .bottom-nav {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 75px;
+            background: rgba(8, 11, 20, 0.95); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-around; align-items: center; padding: 0 10px; z-index: 100;
+        }
+        .nav-item {
+            background: none; border: none; display: flex; flex-direction: column; align-items: center;
+            gap: 4px; color: var(--text-muted); cursor: pointer; font-size: 11px; transition: all 0.2s ease; position: relative; padding: 8px 12px;
+        }
+        .nav-item i { font-size: 18px; }
+        .nav-item.active { color: var(--neon-blue); }
+        .nav-item.active i { text-shadow: 0 0 12px var(--neon-blue); transform: scale(1.1); }
+        .nav-item.active::after {
+            content: ''; position: absolute; bottom: 0; width: 20px; height: 3px;
+            background: var(--neon-blue); border-radius: 3px; box-shadow: 0 0 8px var(--neon-blue);
+        }
+
+        .chat-header {
+            padding: 15px 20px; background: rgba(10, 14, 25, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; align-items: center; gap: 12px;
+        }
+        .chat-header img { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--neon-blue); }
+
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 13px; line-height: 1.5; }
+        .message.incoming { background: rgba(25, 30, 48, 0.8); border: 1px solid rgba(255, 255, 255, 0.05); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .message.outgoing { background: linear-gradient(135deg, #0072ff, #00f2fe); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+        .chat-input-area {
+            padding: 12px 15px; background: rgba(8, 11, 20, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex; gap: 10px; align-items: center; position: absolute; bottom: 0; width: 100%;
+        }
+        .chat-input-area input {
+            flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px; padding: 10px 18px; color: #fff; font-size: 13px; outline: none;
+        }
+        .send-btn {
+            background: var(--neon-blue); border: none; width: 40px; height: 40px; border-radius: 50%;
+            color: #05050a; display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; }
+        .input-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .input-box input {
+            flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 13px; outline: none;
+        }
+        .add-btn {
+            background: linear-gradient(135deg, #0072ff, #00f2fe); border: none; color: #fff;
+            padding: 0 18px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 13px;
+        }
+        .list-container { display: flex; flex-direction: column; gap: 8px; }
+        .tag-item {
+            background: rgba(0, 242, 254, 0.08); border: 1px solid var(--border-color);
+            padding: 10px 14px; border-radius: 12px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; color: var(--neon-blue);
+        }
+        .tag-item i { cursor: pointer; color: var(--text-muted); }
+        .tag-item i:hover { color: #ff4d4d; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Home -->
+        <div id="homeView" class="view active">
+            <div class="home-hero">
+                <div class="iris-avatar-container">
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="IRIS" class="iris-avatar">
+                </div>
+                <div class="status-badge"><span class="status-dot"></span> IRIS Cloud Server Active</div>
+                <h1 class="welcome-title">أهلاً بك، يوسف</h1>
+                <p class="welcome-sub">متصل بالسيرفر الخارجي 24/7</p>
+            </div>
+            <div class="quick-grid">
+                <div class="quick-card" onclick="switchView('chatView')"><i class="fa-solid fa-comments"></i><h3>المحادثة الذكية</h3><p>أوامر شات وأتمتة</p></div>
+                <div class="quick-card" onclick="switchView('tasksView')"><i class="fa-solid fa-list-check"></i><h3>المهام والحجوزات</h3><p>إدارة الحجوزات</p></div>
+                <div class="quick-card" onclick="switchView('newsView')"><i class="fa-solid fa-globe"></i><h3>الأخبار والمباريات</h3><p>متابعة النتائج الحية</p></div>
+                <div class="quick-card" onclick="switchView('profileView')"><i class="fa-solid fa-sliders"></i><h3>الاهتمامات</h3><p>البيانات اليدوية</p></div>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div id="chatView" class="view">
+            <div class="chat-header">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80" alt="IRIS">
+                <div><h4 style="font-size:14px;">IRIS Assistant</h4><span style="font-size:11px; color:var(--neon-blue);">متصل بالسيرفر</span></div>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="message incoming">أهلاً يا يوسف. أنا متصل الآن بالسيرفر، أي أمر تقوله سيحفظ ويتزامن تلقائيًا!</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="اكتب أمرك لـ IRIS..." onkeypress="handleChatKey(event)">
+                <button class="send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <!-- Tasks -->
+        <div id="tasksView" class="view">
+            <div class="section-title">المهام والحجوزات</div>
+            <div class="input-box">
+                <input type="text" id="taskInput" placeholder="أضف مهمة أو حجز فيلم...">
+                <button class="add-btn" onclick="addNewTask()">إضافة</button>
+            </div>
+            <div class="list-container" id="tasksList"></div>
+        </div>
+
+        <!-- News -->
+        <div id="newsView" class="view">
+            <div class="section-title">متابعة الأخبار والمباريات</div>
+            <div class="input-box">
+                <input type="text" id="newsInput" placeholder="تابع فريق، مباراة، أو حدث...">
+                <button class="add-btn" onclick="addNewNews()">متابعة</button>
+            </div>
+            <div class="list-container" id="newsList"></div>
+        </div>
+
+        <!-- Profile -->
+        <div id="profileView" class="view">
+            <div class="section-title">الاهتمامات اليدوية</div>
+            <div class="input-box">
+                <input type="text" id="interestInput" placeholder="اكتب اهتمامًا جديدًا...">
+                <button class="add-btn" onclick="addInterest()">إضافة</button>
+            </div>
+            <div class="list-container" id="interestsList"></div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" onclick="switchView('homeView', this)"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="switchView('chatView', this)"><i class="fa-solid fa-comments"></i><span>الشات</span></button>
+            <button class="nav-item" onclick="switchView('tasksView', this)"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="switchView('newsView', this)"><i class="fa-solid fa-globe"></i><span>الأخبار</span></button>
+            <button class="nav-item" onclick="switchView('profileView', this)"><i class="fa-solid fa-user-gear"></i><span>البروفايل</span></button>
+        </nav>
+    </div>
+
+    <script>
+        let appData = { tasks: [], news: [], interests: [] };
+
+        async function fetchServerData() {
+            try {
+                const res = await fetch('/api/data');
+                const data = await res.json();
+                appData = data;
+                renderAll();
+            } catch (e) {
+                console.error("Error fetching data", e);
+            }
+        }
+
+        async function syncWithServer() {
+            try {
+                await fetch('/api/data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(appData)
+                });
+            } catch (e) {
+                console.error("Error syncing data", e);
+            }
+        }
+
+        function switchView(viewId, element) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById('bottomNav').style.display = (viewId === 'chatView') ? 'none' : 'flex';
+            if (element) {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                element.classList.add('active');
+            }
+        }
+
+        function renderAll() {
+            const tList = document.getElementById('tasksList');
+            tList.innerHTML = '';
+            appData.tasks.forEach((t, idx) => {
+                tList.innerHTML += `<div class="tag-item"><span>📌 ${t.text}</span> <i class="fa-solid fa-xmark" onclick="removeTask(${idx})"></i></div>`;
+            });
+
+            const nList = document.getElementById('newsList');
+            nList.innerHTML = '';
+            appData.news.forEach((n, idx) => {
+                nList.innerHTML += `<div class="tag-item"><span>⚡ ${n.text}</span> <i class="fa-solid fa-xmark" onclick="removeNews(${idx})"></i></div>`;
+            });
+
+            const iList = document.getElementById('interestsList');
+            iList.innerHTML = '';
+            appData.interests.forEach((item, idx) => {
+                iList.innerHTML += `<div class="tag-item"><span>🎯 ${item}</span> <i class="fa-solid fa-xmark" onclick="removeInterest(${idx})"></i></div>`;
+            });
+        }
+
+        async function addNewTask() {
+            const inp = document.getElementById('taskInput');
+            if(inp.value.trim()) {
+                appData.tasks.push({ id: Date.now(), text: inp.value.trim() });
+                inp.value = '';
+                renderAll();
+                await syncWithServer();
+            }
+        }
+
+        async function addNewNews() {
+            const inp = document.getElementById('newsInput');
+            if(inp.value.trim()) {
+                appData.news.push({ id: Date.now(), text: inp.value.trim() });
+                inp.value = '';
+                renderAll();
+                await syncWithServer();
+            }
+        }
+
+        async function addInterest() {
+            const inp = document.getElementById('interestInput');
+            if(inp.value.trim() && !appData.interests.includes(inp.value.trim())) {
+                appData.interests.push(inp.value.trim());
+                inp.value = '';
+                renderAll();
+                await syncWithServer();
+            }
+        }
+
+        async function removeTask(idx) { appData.tasks.splice(idx, 1); renderAll(); await syncWithServer(); }
+        async function removeNews(idx) { appData.news.splice(idx, 1); renderAll(); await syncWithServer(); }
+        async function removeInterest(idx) { appData.interests.splice(idx, 1); renderAll(); await syncWithServer(); }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const body = document.getElementById('chatBody');
+            const text = input.value.trim();
+            if (!text) return;
+
+            body.innerHTML += `<div class="message outgoing">${text}</div>`;
+            input.value = '';
+            body.scrollTop = body.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                });
+                const result = await res.json();
+                appData = result.data;
+                renderAll();
+
+                body.innerHTML += `<div class="message incoming">${result.reply}</div>`;
+                body.scrollTop = body.scrollHeight;
+            } catch (e) {
+                body.innerHTML += `<div class="message incoming">حدث خطأ في الاتصال بالسيرفر.</div>`;
+            }
+        }
+
+        function handleChatKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+        fetchServerData();
+    </script>
+</body>
+</html>
